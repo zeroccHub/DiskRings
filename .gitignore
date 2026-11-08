@@ -1,0 +1,26 @@
+# Build
+.build/
+build/
+dist/
+*.app
+DerivedData/
+
+# Secrets / local
+.env
+.env.*
+*.pem
+*.p12
+*.mobileprovision
+
+# Never ship competitor materials
+rea-analysis/
+rea-verify/
+**/DaisyDisk.app/
+**/DaisyDisk*.zip
+**/DaisyDisk*.icns
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp

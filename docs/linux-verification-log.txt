@@ -1,0 +1,147 @@
+DiskRings Linux verification log — 2026-10-13 09:55 CST (P1 hang fix; base zip 1e21d916)
+Linux 6.12.94+ x86_64
+uid=1000
+Swift version 6.0.3 (swift-6.0.3-RELEASE)
+== swift build incl. tests (warnings+errors)
+0
+== swift test
+	 Executed 157 tests, with 1 test skipped and 0 failures (0 unexpected) in ~15 s
+  ACLAndTCCTests: 6 passed, 0 failed
+  AllOrNothingTests: 5 passed, 0 failed
+  AppActivityTests: 1 passed, 0 failed
+  AppearancePreferenceTests: 2 passed, 0 failed
+  BasketRiskTests: 5 passed, 0 failed
+  BulkAttributeParserTests: 4 passed, 0 failed
+  CloneAccountingTests: 8 passed, 0 failed
+  DashboardStatsTests: 3 passed, 0 failed
+  DeleteConfirmPolicyTests: 7 passed, 0 failed
+  DeletionCancellationTests: 4 passed, 0 failed
+  DeletionGuardTests: 10 passed, 0 failed
+  DisplayPathTests: 1 passed, 0 failed
+  FileCategoryTests: 1 passed, 0 failed
+  LabelFitTests: 4 passed, 0 failed
+  LocalizationLayoutBudgetTests: 2 passed, 0 failed
+  LocalizationTests: 7 passed, 0 failed
+  NeonALayoutTests: 5 passed, 0 failed
+  OffMainTests: 1 passed, 0 failed
+  PostScanPipelineTests: 6 passed, 1 skipped (opt-in 5M)
+  ProgressOrderingTests: 3 passed, 0 failed
+  QuitDuringDeleteTests: 3 passed, 0 failed
+  R3FixTests: 9 passed, 0 failed
+  R3ReviewCloneTests: 3 passed, 0 failed
+  R3ReviewGuardTests: 7 passed, 0 failed
+  R4CloneDeterminismTests: 1 passed, 0 failed
+  R4DeletionListTests: 1 passed, 0 failed
+  R4GuardTests: 4 passed, 0 failed
+  R4PosixDeleterTests: 3 passed, 0 failed
+  R5AllOrNothingTests: 7 passed, 0 failed
+  R5OutcomeTests: 3 passed, 0 failed
+  ScanEngineTests: 10 passed, 0 failed
+  SunburstLayoutTests: 10 passed, 0 failed
+  ThemeTokensTests: 4 passed, 0 failed
+  TreeAndDeletionTests: 6 passed, 0 failed
+== swift test --sanitize=thread
+0 TSan reports; Executed 157 tests (1 skipped), with 0 failures
+== strict-concurrency
+0
+== Swift 6 typecheck
+0
+== forced-macOS parse (38 sources)
+swift-version 5 ok
+swift-version 6 ok
+== build.sh (warnings+errors)
+0
+== --cli /usr
+/usr: 4.4 GB logical / ≈4.6 GB actual usage (estimate), 75345 items
+== build.sh test
+==> AppIcon.icns ok
+==> Localizable.strings ok (217 keys, en + zh-Hans)
+24 passed, 0 failed
+== strings idempotent
+same
+== bash -n + shellcheck
+clean (build.sh + scripts/*.sh)
+== acceptance selftest
+selftest: 27 passed, 0 failed
+== release heavy (DISKRINGS_HEAVY=1, -c release)
+5M nodes: precompute 5.7s; root rebuild+annotate 4.9ms; old per-segment annotate on 100k = 4.18s
+== DeletionGuard / DeletabilityChecker
+unchanged (Deletion.swift too) vs previous zips
+== NOT verified on Mac: AppKit finishing state / Stop during analysis / sheet; macOS sample confirmed root cause only.
+
+==== Simplify v2 (variant 1 Finder-style) + top capacity bar — 2026-10-13 (box, Linux) ====
+== swift build: 0 warnings
+== swift test: Executed 165 tests (1 skipped), 0 failures
+== swift test --sanitize=thread: 0 TSan reports; 165 tests (1 skipped), 0 failures
+== strict-concurrency=complete: 0 ; Swift 6 typecheck (-D SINGLE_MODULE core+geometry): 0
+== forced-macOS parse (Sources/DiskRingsApp, swift 5 + 6): ok
+== build.sh: 0 warnings ; build.sh test: 24 passed, 0 failed
+== strings: 203 keys en + zh-Hans; gen-strings idempotent
+== bash -n + shellcheck: clean ; acceptance selftest: 27 passed, 0 failed
+== release heavy 5M: analysis 2.01s; rebuild worst 2.81ms; hover worst 0.094ms; 150 sectors;
+   capacity bar build 0.037ms, scope 0.008ms (200k: rebuild 1.13ms)
+== DeletionGuard / DeletabilityChecker / Deletion.swift: byte-identical to previous zip
+== NOT verified on Mac: all AppKit (sunburst, outline, delete bar, sheet, capacity bar, compact switch).
+
+== UI review v1-impl fixes (2026-10-13, box)
+== swift build / swift test: 0 warnings; 176 tests, 1 skipped (heavy), 0 failures
+== swift test --sanitize=thread: 176/0 failures (timing budgets ×20 under TSan via TimingBudget)
+== strict-concurrency=complete: 0 diagnostics; swift 6 typecheck core: 0
+== build.sh + build.sh test: 24 passed; gen-strings idempotent (211 keys/lang)
+== forced AppKit parse (-swift-version 5 and 6): 0 diagnostics (NOT type-checked)
+== shellcheck -S warning clean; acceptance selftest 27 passed
+== DRILL 100k makeChartModel worst 3.61ms (debug, budget 8ms); no mount/lstat calls during rebuilds
+== release heavy 5M: analysis 1.82s; rebuild worst 1.90ms; hover 0.078ms; 200k rebuild 1.14ms
+== DeletionGuard / DeletabilityChecker / Deletion.swift: byte-identical to previous zip
+
+== Mac build fix + check gate (2026-10-13, box)
+== fixes: HomePageView CapacityBarView -> VolumeUsageBarView; ChartModel.Sector.span added; var f -> let;
+   MainMenuBuilder marked @MainActor (strict-concurrency finding)
+== ./build.sh check: dup-types 0 duplicates; AppKit-stub typecheck 40 files 0 errors 0 warnings;
+   strict-concurrency=complete pass 0 diagnostics; ~21 s
+== scripts/check/selftest-gate.sh: 5 passed (dup name, missing span, wrong AppKit signature, non-@objc selector, clean)
+== swift build 0 warnings; swift test 177 (1 skipped) 0 failures; TSan 177/0; strict-concurrency 0; swift6 core 0
+== build.sh + build.sh test 24 passed; gen-strings 211 keys; shellcheck -S warning clean; selftest 27 passed
+== heavy release 5M: analysis 1.86s; rebuild worst 1.88ms; hover 0.072ms
+== DeletionGuard / DeletabilityChecker / Deletion.swift: byte-identical to previous zip
+== NOT verified: real macOS SDK compile (Swift 6.1.2); AppKit runtime behaviour
+
+== list-pane fix (2026-10-13, box): split delegate removed; SplitLayout (pure, tested); autosave v4;
+   initial divider at spec ratio; os_log layout line + DEBUG assert; fitLabel (no middle truncation)
+
+== P2 tiered sunburst labels (2026-10-13) ==
+swift test: 190 tests, 1 skipped, 0 failures; ./build.sh check passed (43 files, 0 errors/warnings, strict 0).
+Coverage root 15/36 -> 30/36, drill 15/52 -> 44/52.
+
+== Designer label spec (2026-10-13 PM) ==
+10 pt floor via per-tier metrics (6 tiers, cached), relayout only on tier change / end of live resize,
+opacity 1.0, truncation ≥4 Latin / ≥2 CJK, 其他 N 项 never truncated, reverse-domain root dropped,
+default order rotatedNameFirst. LabelSpecTests (9).
+
+== Whole-tree search (2026-10-13 PM) ==
+TreeSearchTests (6) + search-wiring gate (selftest case 5). Replaces the direct-children filter and dim mask.
+
+== Race fix / flaky timing / stale outline / regex (2026-10-13 PM) ==
+TreeAccessGate + TSan stress (TreeAccessGateTests); negative control without the gate reported TSan races.
+Flaky: LabelLayoutTests.testPlacementBenchmark (one 17.4 ms worst-of-20 spike vs 2-3 ms median, budget 4 ms).
+Timing suite 25/25 consecutive clean runs after the p95/max policy.
+ChartOutlineStateTests (3), RegexSearchTests (6).
+
+== Regex timeout 5 s -> 10 s (2026-10-13 PM) ==
+
+== 2026-10-14 18:34 CST P2 home appearance theme refresh
+prev saved: DiskRings-65277291.zip (outside this repo)
+swift test: 244 (1 skipped) 0 failures
+swift test --sanitize=thread: 244 (1 skipped) 0 TSan reports
+./build.sh check: 3 passes
+SWIFTC=swiftc ./build.sh test: 24 passed
+delete-core (DeletionGuard/Deletion/DeletabilityChecker): byte-identical vs b6f91b50
+cause: CALayer card fills froze light RGB; tipBar alone re-resolved on appearance change
+fix: HomePageView.refreshAppearance + drBg* tokens + AppDelegate notification
+(exact src/zip hashes were recorded beside that zip)
+
+== 2026-11-07 23:16 CST DMG packaging scripts (Linux dry-run only; binary DMG = Mac)
+package_dmg.sh --dry-run OK; build.sh dmg wired; install-adhoc.zh.txt + dmg-mac-verify.md
+
+== 2026-11-07 23:24 CST designer DMG bg + home-colors teal accent
+ThemeTokensTests pass; home-appearance gate OK; package_dmg dry-run OK; R4PosixDeleterTests symlink flake on Linux (delete-core untouched)
